@@ -1,16 +1,18 @@
+
 from flask import Flask, request, jsonify
 from openai import OpenAI
+from localization_agent import translate_to_hindi
 
 app = Flask(__name__)
 
 # Gemini setup
 client = OpenAI(
-    api_key="AIzaSyChJyrEqhPDv_qqwK_MGsmpZT2XfCApc2w",  # change this immediately
+    api_key="AIzaSyChJyrEqhPDv_qqwK_MGsmpZT2XfCApc2w",  
     base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
 )
 
 # -------------------------------
-# Compliance Function (MUST BE ABOVE ROUTES)
+# Compliance Function
 # -------------------------------
 def check_compliance(content):
     banned_words = ["guarantee", "instant results", "100% sure"]
@@ -26,6 +28,7 @@ def check_compliance(content):
 
     return issues
 
+
 # -------------------------------
 # Routes
 # -------------------------------
@@ -34,12 +37,14 @@ def check_compliance(content):
 def home():
     return "Backend is running with Gemini!"
 
-@app.route('/generate', methods=['POST'])
-def generate_content():
+# 🔹 FULL PIPELINE (BEST ROUTE)
+@app.route('/process', methods=['POST'])
+def process_content():
     data = request.json
     product_info = data.get("product_info", "")
 
     try:
+        # 1. Generate Content
         response = client.chat.completions.create(
             model="gemini-2.5-flash",
             messages=[
@@ -49,25 +54,26 @@ def generate_content():
         )
 
         content = response.choices[0].message.content
-        return jsonify({"content": content})
+
+        # 2. Compliance Check
+        issues = check_compliance(content)
+
+        # 3. Translation (Localization)
+        hindi_translation = translate_to_hindi(content)
+
+        return jsonify({
+            "generated_content": content,
+            "compliance_issues": issues,
+            "status": "Approved" if not issues else "Needs Review",
+            "hindi_translation": hindi_translation
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)})
 
-@app.route('/compliance', methods=['POST'])
-def compliance_check():
-    data = request.json
-    content = data.get("content", "")
-
-    issues = check_compliance(content)
-
-    return jsonify({
-        "issues": issues,
-        "status": "Approved" if not issues else "Needs Review"
-    })
 
 # -------------------------------
-# Run App (ONLY ONCE, LAST LINE)
+# Run App
 # -------------------------------
 if __name__ == "__main__":
     app.run(debug=True)
