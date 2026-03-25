@@ -22,7 +22,7 @@ st.markdown(
 
     .stApp {
         background-color: white;
-        background-image: url("https://pixlr.com/images/generator/simple-generator.webp");
+        background-image: url("https://static.vecteezy.com/system/resources/previews/035/855/241/large_2x/white-gradient-background-with-waves-free-vector.jpg");
         background-size: cover;
         background-attachment: fixed;
         background-repeat: no-repeat;
