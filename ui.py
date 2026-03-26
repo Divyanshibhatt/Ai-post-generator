@@ -5,18 +5,24 @@ from app import generate_post, generate_batch
 # -------------------------------
 # 🎨 PAGE CONFIG
 # -------------------------------
+
 st.set_page_config(
     page_title="AI LinkedIn Generator",
     layout="centered"
 )
 
 # -------------------------------
-# 🎨 CUSTOM CSS (White + Green + Animated Background)
+# 🎨 CUSTOM CSS
+# White + Green + Background + Inter Font for Headings
 # -------------------------------
 
 st.markdown(
     """
     <style>
+
+    /* Import Inter font ONLY for headings */
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap');
 
     /* Main background */
 
@@ -41,12 +47,12 @@ st.markdown(
         z-index: -1;
     }
 
-    /* Title styling */
+    /* Headings font — ONLY headings */
 
-    h1 {
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Inter', sans-serif;
         color: #0B6E4F;
-        text-align: center;
-        font-weight: bold;
+        font-weight: 700;
     }
 
     /* Green button styling */
