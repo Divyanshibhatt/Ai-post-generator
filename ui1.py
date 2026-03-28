@@ -1,128 +1,151 @@
 import streamlit as st
-from app import generate_post, generate_batch
+from app import generate_post
 
 # -------------------------------
 # ⚙️ PAGE CONFIG
 # -------------------------------
-st.set_page_config(page_title="AI Content System", layout="wide")
+st.set_page_config(
+    page_title="AI Content System",
+    page_icon="🚀",
+    layout="wide"
+)
 
 # -------------------------------
-# 🎨 GLOBAL CSS (HARD OVERRIDE)
+# 🎨 STYLING
 # -------------------------------
 st.markdown("""
 <style>
-
-/* ===== ROOT BACKGROUND ===== */
 html, body, [data-testid="stAppViewContainer"] {
-    background: linear-gradient(-45deg, #334155, #475569, #1e293b, #60a5fa) !important;
-    background-size: 400% 400% !important;
-    animation: gradientMove 12s ease infinite !important;
+    background: linear-gradient(-45deg, #334155, #475569, #1e293b, #60a5fa);
+    background-size: 400% 400%;
+    animation: gradientMove 12s ease infinite;
 }
 
-/* Animation */
 @keyframes gradientMove {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
 }
 
-/* ===== REMOVE ALL WHITE BACKGROUNDS ===== */
-[data-testid="stHeader"],
-[data-testid="stToolbar"],
-[data-testid="stSidebar"],
-section,
-div,
-.block-container {
-    background: transparent !important;
-}
-
-/* ===== TEXT ===== */
-* {
-    color: white !important;
-}
-
-/* ===== INPUTS ===== */
 textarea, input {
-    background: rgba(255,255,255,0.08) !important;
+    background: rgba(255,255,255,0.95) !important;
+    color: #111827 !important;
     border-radius: 10px !important;
 }
 
-/* Selectbox */
-div[data-baseweb="select"] > div {
-    background: rgba(255,255,255,0.08) !important;
+.result-card {
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    margin-top: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
-/* ===== BUTTON ===== */
 .stButton > button {
     width: 100%;
     background: linear-gradient(90deg, #38bdf8, #6366f1);
+    color: white;
     border-radius: 10px;
     font-size: 16px;
 }
-
-/* ===== OUTPUT CARD ===== */
-.result-card {
-    background: rgba(255,255,255,0.08);
-    padding: 20px;
-    border-radius: 12px;
-    margin-top: 20px;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
 # -------------------------------
-# 🚀 HEADER
+# 🖥️ HEADER
 # -------------------------------
 st.title("🚀 AI Content Lifecycle System")
-st.markdown("Generate, optimize & translate LinkedIn content instantly")
-
+st.markdown("Multi-Agent AI for LinkedIn Content Generation")
 st.markdown("---")
 
 # -------------------------------
-# 📥 INPUTS (NO CUSTOM CARD = NO BUG)
+# 🧾 INPUTS
 # -------------------------------
-topic = st.text_area("📌 Enter Topic", placeholder="e.g. EVs in India")
+topic = st.text_area(
+    "📌 Enter Topic",
+    placeholder="e.g. Future of AI in India",
+    key="topic"
+)
 
 col1, col2 = st.columns(2)
 
 with col1:
-    mode = st.selectbox("🎯 Tone", ["professional", "casual", "motivational"])
+    mode = st.selectbox(
+        "🎯 Tone",
+        ["professional", "casual", "motivational"],
+        key="mode"
+    )
 
 with col2:
-    lang = st.selectbox("🌐 Language", ["both", "english", "hinglish"])
+    lang = st.selectbox(
+        "🌐 Language",
+        ["both", "english", "hinglish"],
+        key="lang"
+    )
 
-batch = st.slider("📦 Number of Posts", 1, 5, 1)
+batch = st.number_input(
+    "📦 Number of Posts",
+    min_value=1,
+    max_value=10,
+    value=1,
+    key="batch"
+)
+
+length = st.selectbox(
+    "📝 Post Length",
+    ["short", "medium", "long"],
+    key="length"
+)
 
 generate_btn = st.button("✨ Generate Content")
 
 # -------------------------------
-# 📤 OUTPUT
+# 🚀 OUTPUT
 # -------------------------------
 if generate_btn:
-
     if topic.strip() == "":
         st.warning("⚠️ Please enter a topic")
-
     else:
-        with st.spinner("Generating... 🚀"):
-            results = generate_batch(topic, mode, lang, batch) if batch > 1 else [generate_post(topic, mode, lang)]
+        with st.spinner("🤖 Agents are working..."):
+            results = []
+            for _ in range(batch):
+                results.append(generate_post(topic, mode, lang, length))
 
-        st.success("✅ Done!")
+        st.success("✅ Content Generated Successfully!")
 
-        for i, result in enumerate(results):
+        all_text = ""
 
+        for i, r in enumerate(results):
             st.markdown('<div class="result-card">', unsafe_allow_html=True)
 
             st.markdown(f"### 📄 Post {i+1}")
-            st.write("**Status:**", result["status"])
+            st.markdown(f"**Status:** {r.get('status', 'Approved')}")
 
-            if "content" in result:
-                st.markdown("#### 📌 English")
-                st.write(result["content"])
+            # English
+            if "content" in r:
+                with st.expander("📌 English"):
+                    st.write(r["content"])
+                    all_text += f"Post {i+1} (English)\n{r['content']}\n\n"
 
-            if "hinglish" in result:
-                st.markdown("#### 🇮🇳 Hinglish")
-                st.write(result["hinglish"])
+            # Hinglish
+            if "hinglish" in r:
+                with st.expander("🇮🇳 Hinglish"):
+                    st.write(r["hinglish"])
+                    all_text += f"Post {i+1} (Hinglish)\n{r['hinglish']}\n\n"
 
             st.markdown('</div>', unsafe_allow_html=True)
+
+        # -------------------------------
+        # ⬇️ DOWNLOAD BUTTON
+        # -------------------------------
+        st.download_button(
+            "⬇️ Download All Posts",
+            all_text,
+            file_name="linkedin_posts.txt"
+        )
+
+# -------------------------------
+# 💡 FOOTER TIP
+# -------------------------------
+st.markdown("---")
+st.info("💡 Tip: Copy and post directly on LinkedIn for best engagement 🚀")
