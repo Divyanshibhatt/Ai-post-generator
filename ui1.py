@@ -1,18 +1,14 @@
 import streamlit as st
 from app import generate_post
 
-# -------------------------------
-# ⚙️ PAGE CONFIG
-# -------------------------------
+
 st.set_page_config(
     page_title="AI Content System",
     page_icon="🚀",
     layout="wide"
 )
 
-# -------------------------------
-# 🎨 STYLING
-# -------------------------------
+
 st.markdown("""
 <style>
 html, body, [data-testid="stAppViewContainer"] {
@@ -51,16 +47,11 @@ textarea, input {
 </style>
 """, unsafe_allow_html=True)
 
-# -------------------------------
-# 🖥️ HEADER
-# -------------------------------
+
 st.title("🚀 AI Content Lifecycle System")
 st.markdown("Multi-Agent AI for LinkedIn Content Generation")
 st.markdown("---")
 
-# -------------------------------
-# 🧾 INPUTS
-# -------------------------------
 topic = st.text_area(
     "📌 Enter Topic",
     placeholder="e.g. Future of AI in India",
@@ -99,9 +90,7 @@ length = st.selectbox(
 
 generate_btn = st.button("✨ Generate Content")
 
-# -------------------------------
-# 🚀 OUTPUT
-# -------------------------------
+
 if generate_btn:
     if topic.strip() == "":
         st.warning("⚠️ Please enter a topic")
@@ -135,17 +124,13 @@ if generate_btn:
 
             st.markdown('</div>', unsafe_allow_html=True)
 
-        # -------------------------------
-        # ⬇️ DOWNLOAD BUTTON
-        # -------------------------------
+   
         st.download_button(
             "⬇️ Download All Posts",
             all_text,
             file_name="linkedin_posts.txt"
         )
 
-# -------------------------------
-# 💡 FOOTER TIP
-# -------------------------------
+
 st.markdown("---")
 st.info("💡 Tip: Copy and post directly on LinkedIn for best engagement 🚀")
