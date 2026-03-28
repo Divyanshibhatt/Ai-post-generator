@@ -1,10 +1,8 @@
 from utils import call_model, clean_output, extract_json
-
 def planner_agent(topic, mode):
     prompt = f"""
 Plan a LinkedIn post on: {topic}
 Tone: {mode}
-
 Return JSON:
 {{
   "hook": "...",

@@ -2,17 +2,12 @@ import json
 import re
 import os
 from openai import OpenAI
-
-
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key="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"
+    api_key="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"
 )
-
-PRIMARY_MODEL = "openai/gpt-4o-mini"
-FALLBACK_MODEL = "openai/gpt-4o-mini:free"
-
-
+PRIMARY_MODEL="openai/gpt-4o-mini"
+FALLBACK_MODEL="openai/gpt-4o-mini:free"
 def call_model(messages):
     try:
         return client.chat.completions.create(
@@ -26,34 +21,27 @@ def call_model(messages):
             messages=messages,
             temperature=0.6
         )
-
 def clean_output(text):
-    return text.replace("```json", "").replace("```", "").strip()
-
+    return text.replace("```json","").replace("```","").strip()
 def extract_json(text):
-    match = re.search(r'\{.*\}', text, re.DOTALL)
+    match = re.search(r'\{.*\}', text,re.DOTALL)
     if match:
         return json.loads(match.group())
     raise ValueError("Invalid JSON")
-
-def generate_post(topic, mode="professional", lang="both", length="medium"):
-
+def generate_post(topic,mode="professional",lang="both",length="medium"):
     length_map = {
-        "short": "80-120 words",
-        "medium": "150-220 words",
-        "long": "250-350 words"
+        "short":"80-120 words",
+        "medium":"150-220 words",
+        "long":"250-350 words"
     }
-
-    if lang == "english":
-        output_fields = '"content": "string"'
-    elif lang == "hinglish":
-        output_fields = '"hinglish": "string"'
+    if lang=="english":
+        output_fields='"content":"string"'
+    elif lang=="hinglish":
+        output_fields='"hinglish":"string"'
     else:
-        output_fields = '"content": "string", "hinglish": "string"'
-
+        output_fields ='"content":"string","hinglish":"string"'
     prompt = f"""
 You are a top LinkedIn content strategist.
-
 Write a HIGH-QUALITY LinkedIn post about: {topic}
 
 Tone: {mode}
@@ -65,30 +53,22 @@ Rules:
 - 1-2 emojis
 - Add 3-5 hashtags
 - Human tone
-
 """
-
     if lang in ["hinglish", "both"]:
-        prompt += "\nAlso convert the SAME post into Hinglish.\n"
-
-    prompt += f"""
+        prompt +="\nAlso convert the SAME post into Hinglish.\n"
+    prompt +=f"""
 Return STRICT JSON:
 {{
   "status": "Approved",
   {output_fields}
 }}
 """
-
-    response = call_model([{"role": "user", "content": prompt}])
+    response = call_model([{"role":"user","content":prompt}])
     raw = clean_output(response.choices[0].message.content.strip())
-
     try:
         result = json.loads(raw)
     except:
         result = extract_json(raw)
-
     return result
-
-
 def generate_batch(topic, mode, lang, n, length):
     return [generate_post(topic, mode, lang, length) for _ in range(n)]
