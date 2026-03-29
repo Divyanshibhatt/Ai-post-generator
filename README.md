@@ -117,7 +117,7 @@ streamlit run ui.py
 * Arjit Pathak 
 * Venya Mehrotra
 * Divyanshi Bhatt
-* Ankit Yadav
+
 ---
 
 ## ⭐ Acknowledgements
