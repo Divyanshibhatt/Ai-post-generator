@@ -1,7 +1,12 @@
 from utils import call_model
+
 def moderator_agent(text):
+    """
+    Improve the LinkedIn post if needed
+    """
     prompt = f"""
 Improve this LinkedIn post if needed:
+
 {text}
 """
     res = call_model([{"role": "user", "content": prompt}])
