@@ -1,30 +1,23 @@
-# utils.py
-import os
-import json
-import re
+import json, re, os
 from openai import OpenAI
-from dotenv import load_dotenv
 
-# -------------------------------
-# 🔑 LOAD ENV VARIABLES
-# -------------------------------
-load_dotenv()  # load .env file
-api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key="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"
+)
 
-if not api_key:
-    raise ValueError("❌ OPENAI_API_KEY not found in .env")
+def call_model(messages):
+    return client.chat.completions.create(
+        model="openai/gpt-4o-mini",
+        messages=messages
+    )
 
-# -------------------------------
-# 🔗 OPENAI CLIENT
-# -------------------------------
-client = OpenAI(api_key=api_key)
+def clean_output(text):
+    return text.replace("```json", "").replace("```", "").strip()
 
-PRIMARY_MODEL = "openai/gpt-4o-mini"
-FALLBACK_MODEL = "openai/gpt-4o-mini:free"
-
-# -------------------------------
-# 🧠 MODEL CALL
-# -------------------------------
+def extract_json(text):
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    return json.loads(match.group())
 def call_model(messages):
     try:
         return client.chat.completions.create(
